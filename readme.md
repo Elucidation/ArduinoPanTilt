@@ -9,9 +9,13 @@ p PAN_ANGLE                 --- Set Pan  position in degrees
 t TILT_ANGLE                --- Set Tilt position in degrees
 z                           --- Zero out to default center positions
 i                           --- Info on current pan/tilt servo angles/positions
+--- Rotation relative to current position
+  u                           --- Up by PREC amount
+  d                           --- Down by PREC amount
+  l                           --- Left by PREC amount
+  r                           --- Right by PREC amount
 ```
 
-also can send `i` which returns current servo positions.
 
 With this basic controller and a raspberry pi camera setup connected to it, 
 we can now move the camera point of view and do fun timelapse stuff.
