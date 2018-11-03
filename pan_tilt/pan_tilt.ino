@@ -15,6 +15,9 @@
 #define SERVO_TILT_MIN 10
 #define SERVO_TILT_MAX 160
 
+// Precision for Up, Down, Left and Right operations
+#define PREC 5
+
 // Servo objects
 Servo servo_pan;
 Servo servo_tilt;
@@ -22,6 +25,8 @@ Servo servo_tilt;
 // Servo positions (0-180 degrees with 90 degrees centred)
 int pan_pos = 0;
 int tilt_pos = 0;
+int pan_deg = 0;
+int tilt_deg = 0;
 
 // Serial read variables
 String inputString = "";         // A string to hold incoming data
@@ -39,10 +44,12 @@ void setPanTilt(int pan_deg, int tilt_deg)
   delay(100);
 }
 
-void setPan(int pan_deg)
+void setPan(int s_pan_deg)
 {
+  // Remember degrees
+  pan_deg = s_pan_deg;
   // Set 90 degrees center for servo
-  pan_pos = pan_deg + SERVO_PAN_ZERO;
+  pan_pos = s_pan_deg + SERVO_PAN_ZERO;
 
   // Constrain angles to limits
   pan_pos = constrain(pan_pos, SERVO_PAN_MIN, SERVO_PAN_MAX);
@@ -51,10 +58,12 @@ void setPan(int pan_deg)
   servo_pan.write(pan_pos);
 }
 
-void setTilt(int tilt_deg)
+void setTilt(int s_tilt_deg)
 {
+  // Remember degrees
+  tilt_deg = s_tilt_deg;
   // Set 90 degrees center for servo
-  tilt_pos = tilt_deg + SERVO_TILT_ZERO;
+  tilt_pos = s_tilt_deg + SERVO_TILT_ZERO;
 
   // Constrain angles to limits
   tilt_pos = constrain(tilt_pos, SERVO_TILT_MIN, SERVO_TILT_MAX);
@@ -65,9 +74,6 @@ void setTilt(int tilt_deg)
 
 void printServoPositions()
 {
-  int pan_deg = pan_pos - SERVO_PAN_ZERO;
-  int tilt_deg = tilt_pos - SERVO_TILT_ZERO;
-
   Serial.print("Servo Angles in Degrees (pan/tilt): ");
   Serial.print(pan_deg);
   Serial.print(" ");
@@ -91,6 +97,10 @@ void printServoPositions()
   t TILT_ANGLE                --- Set Tilt position in degrees
   z                           --- Zero out to default center positions
   i                           --- Info on current pan/tilt servo angles/positions
+  u                           --- Up by PREC amount
+  d                           --- Down by PREC amount
+  l                           --- Left by PREC amount
+  r                           --- Right by PREC amount
 
  */
 void serialEvent()
@@ -127,6 +137,42 @@ void serialEvent()
       // Set tilt degree
       int tilt = Serial.parseInt();
       setTilt(tilt);
+      printServoPositions();
+      break;
+    }
+        
+    case 'u':
+    {
+      // Up
+      int tilt = tilt_deg + PREC;
+      setTilt(tilt);
+      printServoPositions();
+      break;
+    }
+
+    case 'd':
+    {
+      // Down
+      int tilt = tilt_deg - PREC;
+      setTilt(tilt);
+      printServoPositions();
+      break;
+    }
+
+    case 'l':
+    {
+      // Left
+      int pan = pan_deg + PREC;
+      setPan(pan);
+      printServoPositions();
+      break;
+    }
+
+    case 'r':
+    {
+      // Right
+      int pan = pan_deg - PREC;
+      setPan(pan);
       printServoPositions();
       break;
     }
