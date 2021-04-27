@@ -1,5 +1,6 @@
 // Pan/Tilt servo control over serial link
 #include <Servo.h>
+// #include <ArduinoJson.h>
 
 // Servo pins
 #define SERVO_PAN_PIN 10
@@ -53,9 +54,17 @@ void setPan(int s_pan_deg)
 
   // Constrain angles to limits
   pan_pos = constrain(pan_pos, SERVO_PAN_MIN, SERVO_PAN_MAX);
-
+  int current = pan_deg + SERVO_PAN_ZERO;
+  while(pan_pos >= current){
+    current++;
+    servo_pan.write(current)
+  }
+  while(pan_pos <= current){
+    current--;
+    servo_pan.write(current)
+  }
   // Write angles to servo
-  servo_pan.write(pan_pos);
+  // servo_pan.write(pan_pos);
 }
 
 void setTilt(int s_tilt_deg)
@@ -67,12 +76,21 @@ void setTilt(int s_tilt_deg)
 
   // Constrain angles to limits
   tilt_pos = constrain(tilt_pos, SERVO_TILT_MIN, SERVO_TILT_MAX);
-
+  
+  int current = tilt_deg + SERVO_PAN_ZERO;
+  while(pan_pos >= current){
+    current++;
+    servo_tilt.write(current)
+  }
+  while(pan_pos <= current){
+    current--;
+    servo_tilt.write(current)
+  }
   // Write angles to servo
-  servo_tilt.write(tilt_pos);
+  // servo_tilt.write(tilt_pos);
 }
 
-void printServoPositions()
+void printServoPositions() // TODO - change into json data
 {
   Serial.print("Servo Angles in Degrees (pan/tilt): ");
   Serial.print(pan_deg);
