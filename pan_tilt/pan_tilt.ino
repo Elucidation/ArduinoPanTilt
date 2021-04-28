@@ -1,6 +1,6 @@
 // Pan/Tilt servo control over serial link
 #include <Servo.h>
-// #include <ArduinoJson.h>
+#include <ArduinoJson.h>
 
 // Servo pins
 #define SERVO_PAN_PIN 10
@@ -18,6 +18,8 @@
 
 // Precision for Up, Down, Left and Right operations
 #define PREC 5
+
+DynamicJsonDocument doc(1024);
 
 // Servo objects
 Servo servo_pan;
@@ -57,11 +59,13 @@ void setPan(int s_pan_deg)
   int current = pan_deg + SERVO_PAN_ZERO;
   while(pan_pos >= current){
     current++;
-    servo_pan.write(current)
+    servo_pan.write(current);
+    delay(100);
   }
   while(pan_pos <= current){
     current--;
-    servo_pan.write(current)
+    servo_pan.write(current);
+    delay(100);
   }
   // Write angles to servo
   // servo_pan.write(pan_pos);
@@ -80,11 +84,13 @@ void setTilt(int s_tilt_deg)
   int current = tilt_deg + SERVO_PAN_ZERO;
   while(pan_pos >= current){
     current++;
-    servo_tilt.write(current)
+    servo_tilt.write(current);
+    delay(100);
   }
   while(pan_pos <= current){
     current--;
-    servo_tilt.write(current)
+    servo_tilt.write(current);
+    delay(100);
   }
   // Write angles to servo
   // servo_tilt.write(tilt_pos);
@@ -92,15 +98,13 @@ void setTilt(int s_tilt_deg)
 
 void printServoPositions() // TODO - change into json data
 {
-  Serial.print("Servo Angles in Degrees (pan/tilt): ");
-  Serial.print(pan_deg);
-  Serial.print(" ");
-  Serial.println(tilt_deg);
-
-  Serial.print("Servo Actual Positions (pan/tilt): ");
-  Serial.print(pan_pos);
-  Serial.print(" ");
-  Serial.println(tilt_pos);
+  // Relative positions
+  doc["PanDeg"] = pan_deg;
+  doc["TiltDeg"] = tilt_deg;
+  // Absolute positions
+  doc["PanPos"] = pan_pos;
+  doc["TiltPos"] = tilt_pos;
+  serializeJson(doc, Serial);
 }
 
 /*
