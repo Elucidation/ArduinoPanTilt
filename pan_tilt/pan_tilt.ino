@@ -1,5 +1,6 @@
 // Pan/Tilt servo control over serial link
 #include <Servo.h>
+#include <ArduinoJson.h>
 
 // Servo pins
 #define SERVO_PAN_PIN 10
@@ -17,6 +18,8 @@
 
 // Precision for Up, Down, Left and Right operations
 #define PREC 5
+
+DynamicJsonDocument doc(1024);
 
 // Servo objects
 Servo servo_pan;
@@ -38,6 +41,7 @@ boolean stringComplete = false;  // Whether the string is complete
 void setPanTilt(int pan_deg, int tilt_deg)
 {
   setPan(pan_deg);
+  delay(100);
   setTilt(tilt_deg);
 
   // Wait for servos to get to position
@@ -46,6 +50,7 @@ void setPanTilt(int pan_deg, int tilt_deg)
 
 void setPan(int s_pan_deg)
 {
+  int current = pan_deg + SERVO_PAN_ZERO;
   // Remember degrees
   pan_deg = s_pan_deg;
   // Set 90 degrees center for servo
@@ -53,13 +58,27 @@ void setPan(int s_pan_deg)
 
   // Constrain angles to limits
   pan_pos = constrain(pan_pos, SERVO_PAN_MIN, SERVO_PAN_MAX);
-
+  if(pan_pos > current){
+    while(pan_pos >= current){
+      current++;
+      servo_pan.write(current);
+      delay(100);
+    }
+  }
+  else{
+    while(pan_pos <= current){
+      current--;
+      servo_pan.write(current);
+      delay(100);
+    }
+  }
   // Write angles to servo
-  servo_pan.write(pan_pos);
+  // servo_pan.write(pan_pos);
 }
 
 void setTilt(int s_tilt_deg)
 {
+  int current = tilt_deg + SERVO_PAN_ZERO;
   // Remember degrees
   tilt_deg = s_tilt_deg;
   // Set 90 degrees center for servo
@@ -67,22 +86,34 @@ void setTilt(int s_tilt_deg)
 
   // Constrain angles to limits
   tilt_pos = constrain(tilt_pos, SERVO_TILT_MIN, SERVO_TILT_MAX);
-
+  if(tilt_pos > current){
+    while(tilt_pos >= current){
+      current++;
+      servo_tilt.write(current);
+      delay(100);
+    }
+  }
+  else{
+    while(tilt_pos <= current){
+      current--;
+      servo_tilt.write(current);
+      delay(100);
+    }
+  }
   // Write angles to servo
-  servo_tilt.write(tilt_pos);
+  // servo_tilt.write(tilt_pos);
 }
 
-void printServoPositions()
+void printServoPositions() // TODO - change into json data
 {
-  Serial.print("Servo Angles in Degrees (pan/tilt): ");
-  Serial.print(pan_deg);
-  Serial.print(" ");
-  Serial.println(tilt_deg);
-
-  Serial.print("Servo Actual Positions (pan/tilt): ");
-  Serial.print(pan_pos);
-  Serial.print(" ");
-  Serial.println(tilt_pos);
+  // Relative positions
+  doc["PanDeg"] = pan_deg;
+  doc["TiltDeg"] = tilt_deg;
+  // Absolute positions
+  doc["PanPos"] = pan_pos;
+  doc["TiltPos"] = tilt_pos;
+  serializeJson(doc, Serial);
+  Serial.println();
 }
 
 /*
