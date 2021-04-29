@@ -41,6 +41,7 @@ boolean stringComplete = false;  // Whether the string is complete
 void setPanTilt(int pan_deg, int tilt_deg)
 {
   setPan(pan_deg);
+  delay(100);
   setTilt(tilt_deg);
 
   // Wait for servos to get to position
@@ -49,6 +50,7 @@ void setPanTilt(int pan_deg, int tilt_deg)
 
 void setPan(int s_pan_deg)
 {
+  int current = pan_deg + SERVO_PAN_ZERO;
   // Remember degrees
   pan_deg = s_pan_deg;
   // Set 90 degrees center for servo
@@ -56,16 +58,19 @@ void setPan(int s_pan_deg)
 
   // Constrain angles to limits
   pan_pos = constrain(pan_pos, SERVO_PAN_MIN, SERVO_PAN_MAX);
-  int current = pan_deg + SERVO_PAN_ZERO;
-  while(pan_pos >= current){
-    current++;
-    servo_pan.write(current);
-    delay(100);
+  if(pan_pos > current){
+    while(pan_pos >= current){
+      current++;
+      servo_pan.write(current);
+      delay(100);
+    }
   }
-  while(pan_pos <= current){
-    current--;
-    servo_pan.write(current);
-    delay(100);
+  else{
+    while(pan_pos <= current){
+      current--;
+      servo_pan.write(current);
+      delay(100);
+    }
   }
   // Write angles to servo
   // servo_pan.write(pan_pos);
@@ -73,6 +78,7 @@ void setPan(int s_pan_deg)
 
 void setTilt(int s_tilt_deg)
 {
+  int current = tilt_deg + SERVO_PAN_ZERO;
   // Remember degrees
   tilt_deg = s_tilt_deg;
   // Set 90 degrees center for servo
@@ -80,17 +86,19 @@ void setTilt(int s_tilt_deg)
 
   // Constrain angles to limits
   tilt_pos = constrain(tilt_pos, SERVO_TILT_MIN, SERVO_TILT_MAX);
-  
-  int current = tilt_deg + SERVO_PAN_ZERO;
-  while(pan_pos >= current){
-    current++;
-    servo_tilt.write(current);
-    delay(100);
+  if(tilt_pos > current){
+    while(tilt_pos >= current){
+      current++;
+      servo_tilt.write(current);
+      delay(100);
+    }
   }
-  while(pan_pos <= current){
-    current--;
-    servo_tilt.write(current);
-    delay(100);
+  else{
+    while(tilt_pos <= current){
+      current--;
+      servo_tilt.write(current);
+      delay(100);
+    }
   }
   // Write angles to servo
   // servo_tilt.write(tilt_pos);
@@ -105,6 +113,7 @@ void printServoPositions() // TODO - change into json data
   doc["PanPos"] = pan_pos;
   doc["TiltPos"] = tilt_pos;
   serializeJson(doc, Serial);
+  Serial.println();
 }
 
 /*
