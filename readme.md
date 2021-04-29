@@ -19,3 +19,7 @@ i                           --- Info on current pan/tilt servo angles/positions
 
 With this basic controller and a raspberry pi camera setup connected to it, 
 we can now move the camera point of view and do fun timelapse stuff.
+
+Possibly breaking changes since first version:
+- soft turn when setting pan or tilt (with speed of 1 degree per 100ms)
+- Information being sent back is now in form of a json data
